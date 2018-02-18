@@ -13,10 +13,7 @@ namespace MonoGameEngine
 		public static int SCREEN_WIDTH = 480;
 		public static int SCREEN_HEIGHT = 300;
 
-		public static int STATE_TITLE = 1;
-		public static int STATE_GAME = 2;
-		public static int STATE_GAMEOVER = 3;
-		public static int STATE_HIGHSCORES = 4;
+		public enum GameState { Title, Game, GameOver, HighScore};
 
 		GraphicsDeviceManager graphics;
 		BoxingViewportAdapter boxingViewportAdapter;
@@ -29,10 +26,17 @@ namespace MonoGameEngine
 
 		World world;
 
+		public GameState State = GameState.Title;
+
 		public GameCore()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
+			contentManager = new ContentManager();
+			drawingController = new DrawingController();
+			cameraController = new CameraController();
+			logicController = new LogicController();
+			guiController = new GuiController(this, world);
 		}
 
 		protected override void Initialize()
@@ -40,13 +44,15 @@ namespace MonoGameEngine
 			base.Initialize();
 
 			boxingViewportAdapter = new BoxingViewportAdapter(Window, graphics, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-			cameraController = new CameraController();
-			cameraController.Initialize(boxingViewportAdapter);
-			world = new World();
-			guiController = new GuiController(this, world);
+		
+			cameraController.Initialize(boxingViewportAdapter);			
+			drawingController.Initialize(cameraController.GetCamera());
+			logicController.Initialize();
+			guiController.Initialize();
 
 			Exiting += Close;
+
+			ChangeState(GameState.Title);
 		}
 
 		public void UnloadGame()
@@ -54,11 +60,36 @@ namespace MonoGameEngine
 			world = null;
 		}
 
+		public void LoadGame()
+		{
+			world = new World();
+			world.Initialize(contentManager);
+		}
+
+		public void ChangeState(GameState state)
+		{
+			State = state;
+
+			if (state == GameState.Title)
+			{
+				UnloadGame();
+				IsMouseVisible = true;
+				guiController.ChangeState(GameState.Title);
+			}
+
+			else if(state == GameState.Game)
+			{
+				IsMouseVisible = false;
+				LoadGame();
+				guiController.ChangeState(GameState.Game);
+			}
+		}
+
 		protected override void LoadContent()
 		{
 
 			contentManager.LoadContent(this);
-			drawingController.LoadContent(this, cameraController.GetCamera());
+			drawingController.LoadContent(this);
 		}
 
 		protected override void UnloadContent()
@@ -69,9 +100,10 @@ namespace MonoGameEngine
 
 		protected override void Update(GameTime gameTime)
 		{
-			logicController.Update(gameTime);
-
 			base.Update(gameTime);
+
+			if (State == GameState.Game) logicController.Update(this, world, gameTime, guiController);
+			else logicController.Update(gameTime, guiController);
 		}
 
 		protected override void Draw(GameTime gameTime)
@@ -79,6 +111,9 @@ namespace MonoGameEngine
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			base.Draw(gameTime);
+
+			if (State == GameState.Title) drawingController.Draw(gameTime, guiController);
+			else if (State == GameState.Game) drawingController.Draw(gameTime, world, guiController);
 		}
 
 		public void Close(object Sender, EventArgs e)

@@ -9,11 +9,11 @@ namespace MonoGameEngine
 {
 	public class ContentManager
 	{
-		private Texture2D sprite;
+		public Texture2D evermore_cover;
 
 		public void LoadContent(GameCore game)
 		{
-			sprite = game.Content.Load<Texture2D>("evermore_cover");
+			evermore_cover = game.Content.Load<Texture2D>("Sprites/sprite");
 		}
 	}
 }

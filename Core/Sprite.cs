@@ -12,10 +12,11 @@ namespace MonoGameEngine.Core
 	{
 		public Texture2D Texture { get; set; }
 		public Vector2 Position { get; set; }
+		public float Speed { get; set; }
 
 		public Sprite()
 		{
-
+			
 		}
 
 		public Sprite(Texture2D tex)
@@ -29,9 +30,14 @@ namespace MonoGameEngine.Core
 			Position = pos;
 		}
 
+		public Rectangle GetRect()
+		{
+			return new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
+		}
+
 		public void Draw(SpriteBatch batch)
 		{
-
+			batch.Draw(Texture, GetRect(), Color.White);
 		}
 		
 	}

@@ -11,14 +11,20 @@ namespace MonoGameEngine
 	{
 		private InputManager input;
 
-		public void Initialize(GameCore game, World world)
+		public void Initialize()
 		{
-			input = new InputManager(game, world);
+			input = new InputManager();
 		}
 
-		public void Update(GameTime gameTime)
+		public void Update(GameTime gameTime, GuiController guiController)
 		{
-			input.Update(gameTime);
+			guiController.Update(gameTime);
+		}
+
+		public void Update(GameCore game, World world, GameTime gameTime, GuiController guiController)
+		{
+			input.Update(game, world, gameTime);
+			guiController.Update(gameTime);
 		}
 	}
 }

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MonoGameEngine
 {
-	class World
+	public class World
 	{
+
 	}
 }

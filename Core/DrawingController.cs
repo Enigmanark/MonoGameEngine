@@ -17,7 +17,7 @@ namespace MonoGameEngine
 		//For GameState in STATE_GAME
 		public void Draw(GameTime gameTime, World world, GuiController gui)
 		{
-			spriteBatch.Begin();
+			spriteBatch.Begin(transformMatrix: camera.GetViewMatrix());
 			world.Draw(spriteBatch);
 			gui.Draw(gameTime);
 			spriteBatch.End();
